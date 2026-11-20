@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Стоп-звонок — тренажёр безопасного разговора</title>
+<style>
+  :root{
+    --blue:#14467c; --blue-d:#0d3159; --blue-l:#eaf2fb;
+    --orange:#e8701a; --green:#1e7d3c; --red:#c0392b;
+    --text:#1c2733; --muted:#5a6b7d; --bg:#f7f9fc; --card:#ffffff;
+    --radius:14px; --shadow:0 2px 10px rgba(20,70,124,.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:"Segoe UI",Verdana,Arial,sans-serif; font-size:19px; line-height:1.55; color:var(--text); background:var(--bg);}
+  .wrap{max-width:1000px; margin:0 auto; padding:0 18px;}
+
+  header{background:linear-gradient(135deg,var(--blue-d),var(--blue)); color:#fff; padding:26px 0 22px;}
+  header .wrap{display:flex; flex-wrap:wrap; align-items:center; gap:16px;}
+  .logo{display:flex; align-items:center; gap:14px;}
+  .logo-ic{width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;flex:none;}
+  header h1{font-size:1.7rem; letter-spacing:.3px;}
+  header p{color:#cfe0f3; font-size:1rem; margin-top:2px;}
+  .hotline{margin-left:auto; background:rgba(255,255,255,.14); border:2px solid #fff; border-radius:12px; padding:10px 16px; text-align:center;}
+  .hotline b{font-size:1.25rem; display:block;}
+
+  nav{background:#fff; box-shadow:var(--shadow); position:sticky; top:0; z-index:50;}
+  nav .wrap{display:flex; flex-wrap:wrap; gap:6px;}
+  nav button{font-size:1.02rem; font-weight:600; color:var(--blue); background:none; border:none; border-bottom:4px solid transparent; padding:14px 14px; cursor:pointer;}
+  nav button:hover{background:var(--blue-l);}
+  nav button.active{border-bottom-color:var(--orange); color:var(--blue-d);}
+
+  main{padding:28px 0 40px;}
+  section.page{display:none;}
+  section.page.show{display:block; animation:fade .25s;}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .hero{display:grid; grid-template-columns:1.2fr .8fr; gap:22px; align-items:stretch;}
+  @media(max-width:800px){.hero{grid-template-columns:1fr;}}
+  .hero-card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:26px;}
+  .hero-card h2{color:var(--blue-d); font-size:1.45rem; margin-bottom:12px;}
+  .hero-card p{margin-bottom:12px;}
+  .big-btn{display:block; width:100%; text-align:center; background:var(--orange); color:#fff; font-size:1.25rem; font-weight:700; padding:16px; border:none; border-radius:12px; cursor:pointer; margin-top:10px; transition:transform .1s;}
+  .big-btn:hover{transform:scale(1.02);}
+  .big-btn.blue{background:var(--blue);}
+  .big-btn.green{background:var(--green);}
+  .stat{display:flex; gap:14px; align-items:baseline; padding:12px 0; border-bottom:1px dashed #d5e0ec;}
+  .stat:last-child{border-bottom:none;}
+  .stat b{font-size:2rem; color:var(--orange); min-width:110px; white-space:nowrap;}
+  .stat span{color:var(--muted); font-size:1rem;}
+
+  h2.sec{color:var(--blue-d); font-size:1.4rem; margin:26px 0 14px;}
+  .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:16px;}
+  .cards3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:800px){.cards3{grid-template-columns:1fr;}}
+  .scn{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; border-top:6px solid var(--blue); display:flex; flex-direction:column;}
+  .scn .em{font-size:2.4rem; margin-bottom:8px;}
+  .scn h3{color:var(--blue-d); margin-bottom:8px; font-size:1.15rem;}
+  .scn p{color:var(--muted); font-size:1rem; margin-bottom:14px; flex:1;}
+  .scn button{background:var(--blue); color:#fff; border:none; font-size:1.05rem; font-weight:700; padding:12px; border-radius:10px; cursor:pointer;}
+  .scn button:hover{background:var(--blue-d);}
+  .diff{display:inline-block; font-size:.85rem; padding:2px 10px; border-radius:20px; margin-bottom:10px;}
+  .diff.ez{background:#e4f5e9; color:var(--green);}
+  .diff.mid{background:#fdf1e3; color:var(--orange);}
+  .diff.hard{background:#fbe6e2; color:var(--red);}
+
+  /* Тренажёр — «телефон» */
+  .phone{max-width:480px; margin:0 auto; background:#dfe7ef; border:4px solid #b7c6d6; border-radius:26px; padding:14px;}
+  .phone-top{display:flex; align-items:center; justify-content:center; gap:10px; padding:10px; background:#fff; border-radius:16px 16px 0 0; border-bottom:2px solid #e2e8f0;}
+  .phone-top .ring{width:12px;height:12px;border-radius:50%;background:var(--green); animation:pulse 1.2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .phone-top b{font-size:1.1rem;}
+  .caller{text-align:center; padding:12px; font-weight:700; color:var(--muted);}
+  .chat{background:#fff; min-height:220px; padding:16px 14px; border-top:2px solid #e2e8f0; display:flex; flex-direction:column; gap:12px;}
+  .msg{max-width:88%; padding:12px 14px; border-radius:16px; font-size:1rem;}
+  .msg.scam{background:var(--blue-l); color:#12283f; border-bottom-left-radius:4px; align-self:flex-start;}
+  .msg.me{background:var(--green); color:#fff; border-bottom-right-radius:4px; align-self:flex-end;}
+  .msg.sys{background:#fff7ec; border:2px dashed var(--orange); color:#7a4a12; align-self:center; text-align:center; font-size:.92rem; border-radius:12px;}
+  .choices{display:flex; flex-direction:column; gap:10px; margin-top:14px;}
+  .choices button{background:#fff; border:2px solid var(--blue); color:var(--blue-d); font-size:1rem; padding:12px 14px; border-radius:12px; cursor:pointer; text-align:left;}
+  .choices button:hover{background:var(--blue-l);}
+  .feedback{border-radius:12px; padding:14px; margin-top:6px; font-size:.98rem;}
+  .feedback.ok{background:#e4f5e9; border:2px solid var(--green);}
+  .feedback.bad{background:#fbe6e2; border:2px solid var(--red);}
+  .progress{height:10px; background:#e2e8f0; border-radius:6px; overflow:hidden; margin:10px 0;}
+  .progress i{display:block; height:100%; background:var(--orange); transition:width .3s;}
+  .center{text-align:center;}
+  .muted{color:var(--muted);}
+
+  /* Квиз */
+  .quiz-q{font-size:1.15rem; font-weight:700; margin-bottom:14px; color:var(--blue-d);}
+  .quiz-opts{display:flex; flex-direction:column; gap:10px;}
+  .quiz-opts button{background:#fff; border:2px solid #cdd9e5; padding:13px 15px; border-radius:12px; cursor:pointer; text-align:left; font-size:1rem;}
+  .quiz-opts button:hover{border-color:var(--blue);}
+  .quiz-opts button.right{border-color:var(--green); background:#e4f5e9;}
+  .quiz-opts button.wrong{border-color:var(--red); background:#fbe6e2;}
+  .score-big{font-size:3rem; font-weight:800; color:var(--blue);}
+
+  /* Памятка */
+  .rule{display:flex; gap:16px; align-items:flex-start; background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:12px;}
+  .rule .n{flex:none; width:48px; height:48px; border-radius:50%; background:var(--orange); color:#fff; font-size:1.5rem; font-weight:800; display:flex; align-items:center; justify-content:center;}
+  .rule b{color:var(--blue-d);}
+  .warn{background:#fff7ec; border:2px solid var(--orange); border-radius:var(--radius); padding:18px 20px; margin:16px 0;}
+  .warn b{color:var(--red);}
+
+  .steps-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media(max-width:800px){.steps-grid{grid-template-columns:1fr;}}
+
+  footer{background:var(--blue-d); color:#bcd2ea; padding:22px 0; font-size:.9rem; text-align:center;}
+  footer b{color:#fff;}
+  .badge{display:inline-block; background:var(--blue-l); color:var(--blue); border-radius:8px; padding:3px 10px; font-size:.85rem; font-weight:700; margin-bottom:10px;}
+  .back-btn{background:none;border:2px solid var(--blue);color:var(--blue);border-radius:10px;padding:9px 16px;font-size:.95rem;cursor:pointer;margin-bottom:8px;font-weight:700;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">
+      <div class="logo-ic">🛡️</div>
+      <div>
+        <h1>Стоп-звонок</h1>
+        <p>тренажёр безопасного разговора для людей старшего возраста</p>
+      </div>
+    </div>
+    <div class="hotline">
+      <span>Единый номер банка</span>
+      <b>900</b>
+      <span>или номер на обратной стороне карты</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <button data-page="main" class="active">Главная</button>
+    <button data-page="sim">📞 Тренажёр звонка</button>
+    <button data-page="quiz">✅ Проверь себя</button>
+    <button data-page="rules">📋 Памятка</button>
+    <button data-page="family">👨‍👩‍👧 Страница для близких</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ===================== ГЛАВНАЯ ===================== -->
+<section class="page show" id="page-main">
+  <div class="hero">
+    <div class="hero-card">
+      <h2>Вам звонит «служба безопасности банка»?</h2>
+      <p><b>Не спешите.</b> Настоящий сотрудник банка, полиции или Госуслуг <b>никогда</b> не попросит у вас: код из СМС, номер карты, пароль или перевод денег на «безопасный счёт».</p>
+      <p>Этот тренажёр — как симулятор вождения, только для телефона. Вы «поговорите» с мошенником в безопасной обстановке, научитесь замечать приёмы и потренируетесь правильно отвечать.</p>
+      <button class="big-btn" data-page="sim">▶ Начать тренировку</button>
+      <button class="big-btn blue" data-page="quiz">Пройти тест из 10 вопросов</button>
+    </div>
+    <div class="hero-card">
+      <h2>Почему это важно</h2>
+      <div class="stat"><b>98%</b><span>россиян старше 60 лет за год сталкивались с попытками мошенничества (НАФИ, 2025)</span></div>
+      <div class="stat"><b>93%</b><span>атак на пожилых начинаются с телефонного звонка (РБК, 2025)</span></div>
+      <div class="stat"><b>1,5 млрд ₽</b><span>похитили мошенники у пожилых россиян за год (окт. 2024 — окт. 2025)</span></div>
+      <div class="stat"><b>3 минуты</b><span>занимает одна тренировка на тренажёре</span></div>
+    </div>
+  </div>
+
+  <h2 class="sec">Три ситуации — как в реальной жизни</h2>
+  <div class="cards3">
+    <div class="scn">
+      <div class="em">🏦</div>
+      <span class="diff ez">начальный уровень</span>
+      <h3>«Служба безопасности банка»</h3>
+      <p>Звонят «из банка»: подозрительная транзакция, карта заблокирована, деньги надо «спасти». Самая частая схема — 73% всех попыток обмана.</p>
+      <button data-scn="bank">Пройти сценарий</button>
+    </div>
+    <div class="scn">
+      <div class="em">👮</div>
+      <span class="diff mid">средний уровень</span>
+      <h3>«Следователь полиции»</h3>
+      <p>«На вас оформили сим-карту преступники, нужно проверить ваши сбережения». Давят авторитетом, спешкой и страхом ареста.</p>
+      <button data-scn="police">Пройти сценарий</button>
+    </div>
+    <div class="scn">
+      <div class="em">💻</div>
+      <span class="diff hard">сложный уровень</span>
+      <h3>«Техподдержка» и «Госуслуги»</h3>
+      <p>Мошенник представляется специалистом: «на вашем компьютере вирус», «подтвердите данные для записи к врачу». Цель — удалённый доступ и персональные данные.</p>
+      <button data-scn="tech">Пройти сценарий</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ТРЕНАЖЁР ===================== -->
+<section class="page" id="page-sim">
+  <div class="center" style="margin-bottom:14px;">
+    <button class="back-btn" data-page="main">← В главное меню</button>
+  </div>
+  <div id="sim-menu">
+    <h2 class="sec">Выберите ситуацию для тренировки</h2>
+    <div class="cards3">
+      <div class="scn"><div class="em">🏦</div><span class="diff ez">начальный уровень</span><h3>«Служба безопасности банка»</h3><p>Подозрительная транзакция, «спасение» денег.</p><button data-scn="bank">Пройти</button></div>
+      <div class="scn"><div class="em">👮</div><span class="diff mid">средний уровень</span><h3>«Следователь полиции»</h3><p>«Проверка сбережений», страх ареста.</p><button data-scn="police">Пройти</button></div>
+      <div class="scn"><div class="em">💻</div><span class="diff hard">сложный уровень</span><h3>«Техподдержка»</h3><p>Вирус на компьютере, «подтверждение данных».</p><button data-scn="tech">Пройти</button></div>
+    </div>
+  </div>
+  <div id="sim-game" style="display:none;">
+    <div class="phone">
+      <div class="phone-top"><span class="ring"></span><b id="sim-caller">Входящий вызов…</b></div>
+      <div class="progress"><i id="sim-prog" style="width:0%"></i></div>
+      <div class="chat" id="sim-chat"></div>
+      <div class="choices" id="sim-choices"></div>
+    </div>
+    <div class="center" style="margin-top:16px;">
+      <button class="back-btn" id="sim-restart">↺ Начать сценарий заново</button>
+      <button class="back-btn" data-page="sim" id="sim-exit">Выйти к списку ситуаций</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== КВИЗ ===================== -->
+<section class="page" id="page-quiz">
+  <div class="center" style="margin-bottom:14px;">
+    <button class="back-btn" data-page="main">← В главное меню</button>
+  </div>
+  <div class="card" id="quiz-box">
+    <span class="badge" id="quiz-counter"></span>
+    <div class="quiz-q" id="quiz-q"></div>
+    <div class="quiz-opts" id="quiz-opts"></div>
+  </div>
+  <div class="card center" id="quiz-result" style="display:none;">
+    <div class="score-big" id="quiz-score"></div>
+    <p id="quiz-verdict" style="margin:10px 0 16px;"></p>
+    <button class="big-btn blue" id="quiz-again">↺ Пройти ещё раз</button>
+  </div>
+</section>
+
+<!-- ===================== ПАМЯТКА ===================== -->
+<section class="page" id="page-rules">
+  <div class="center" style="margin-bottom:14px;">
+    <button class="back-btn" data-page="main">← В главное меню</button>
+  </div>
+  <h2 class="sec">Пять железных правил</h2>
+  <div class="rule"><div class="n">1</div><div><b>Положите трубку. Это не грубость.</b><br>Закончить разговор — ваше право. Настоящие организации не обидятся. Если сомневаетесь — положите трубку и перезвоните сами.</div></div>
+  <div class="rule"><div class="n">2</div><div><b>Перезвоните сами — только по официальному номеру.</b><br>Номер банка — на обратной стороне карты или 900. Полиция не звонит первой с просьбой «проверить счёт». Никогда не перезванивайте по номеру, который продиктовали в звонке.</div></div>
+  <div class="rule"><div class="n">3</div><div><b>Никаких кодов, паролей и цифр с обратной стороны карты.</b><br>Код из СМС — это ключ от ваших денег. Его не имеет права спрашивать даже настоящий сотрудник банка.</div></div>
+  <div class="rule"><div class="n">4</div><div><b>«Безопасных счетов» не существует.</b><br>Просьба перевести деньги «на защищённый счёт», «до выяснения», «для проверки» — это всегда мошенники. Банк не проводит «проверки» через перевод.</div></div>
+  <div class="rule"><div class="n">5</div><div><b>Не торопитесь. Посоветуйтесь с близкими.</b><br>Мошенники всегда создают спешку: «на вас нападают прямо сейчас!». Спешка — их главный инструмент. Любую «аварийную» ситуацию можно обсудить с детьми или внуками.</div></div>
+  <div class="warn">⚠️ <b>Если уже перевели деньги:</b> немедленно позвоните в банк по номеру 900 и попросите остановить платёж, затем сообщите в полицию (102 или заявление на сайте мвд.рф). Чем быстрее — тем выше шанс вернуть деньги.</div>
+  <div class="warn">💡 <b>Запомните:</b> настоящие сотрудники банка, полиции, Госуслуг, поликлиники, Пенсионного фонда <b>НИКОГДА</b> не звонят первыми с просьбой назвать код, пароль, данные карты или перевести деньги.</div>
+</section>
+
+<!-- ===================== ДЛЯ БЛИЗКИХ ===================== -->
+<section class="page" id="page-family">
+  <div class="center" style="margin-bottom:14px;">
+    <button class="back-btn" data-page="main">← В главное меню</button>
+  </div>
+  <h2 class="sec">Если ваши родители или бабушка с дедушкой — «не в теме»</h2>
+  <div class="card">
+    <p style="margin-bottom:12px;">По опросу СберМобайла и Rambler&amp;Co (2025), <b>82% россиян</b> стараются защитить близких от телефонных мошенников, но лишь <b>14%</b> подключают технические средства защиты. Вот что можно сделать за один вечер:</p>
+    <div class="steps-grid">
+      <div class="rule"><div class="n">1</div><div><b>Настройте определитель номера.</b><br>Включите в приложении банка и на телефоне определитель/антиспам: предупреждение «подозрительный звонок» само останавливает разговор.</div></div>
+      <div class="rule"><div class="n">2</div><div><b>Добавьте контакты на главный экран.</b><br>Крупная кнопка «ПОЗВОНИТЬ БАНКУ — 900» и «ПОЗВОНИТЬ МНЕ». Чтобы в панике было куда звонить.</div></div>
+      <div class="rule"><div class="n">3</div><div><b>Пройдите тренажёр вместе.</b><br>Сядьте рядом, пройдите три сценария вслух и обсудите. Одна совместная тренировка работает лучше десяти предупреждений.</div></div>
+      <div class="rule"><div class="n">4</div><div><b>Договоритесь о кодовом слове.</b><br>Если «внук» или «полицейский» звонит и просит деньги — одно контрольное слово сразу вскрывает обман.</div></div>
+      <div class="rule"><div class="n">5</div><div><b>Ограничьте лимиты переводов.</b><br>Попросите банк установить дневной лимит на переводы по СБП и снятие наличных. Лимит — это «подушка безопасности».</div></div>
+      <div class="rule"><div class="n">6</div><div><b>Повторяйте раз в месяц.</b><br>Мошенники меняют легенды. Раз в месяц — 5 минут квиза на этом сайте, чтобы навык не забывался.</div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>«Стоп-звонок»</b> — учебный социальный проект. Сайт создан в рамках курса «Безопасность жизнедеятельности» (НИУ ВШЭ, МИЭМ).</p>
+    <p style="margin-top:6px;">Все сценарии основаны на реальных схемах мошенничества по данным ЦБ РФ, ВЦИОМ и НАФИ. Никакие персональные данные на сайте не собираются.</p>
+  </div>
+</footer>
+
+<script>
+/* ============ Навигация ============ */
+function goPage(id){
+  document.querySelectorAll('section.page').forEach(s=>s.classList.remove('show'));
+  document.getElementById('page-'+id).classList.add('show');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.page===id));
+  window.scrollTo({top:0});
+}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goPage(el.dataset.page)));
+
+/* ============ Тренажёр ============ */
+const SCENARIOS = {
+  bank:{
+    title:"Служба безопасности банка",
+    caller:"+7 (495) 395-••-••  «СберБанк»",
+    nodes:{
+      start:{scam:"Здравствуйте! Мария Петровна? Я Алексей, служба безопасности банка. На вашу карту только что была попытка списания 34 500 рублей — чужой человек в другом городе. Подтверждаете операцию?",
+        next:"n1"},
+      n1:{choices:[
+        {t:"Нет, не подтверждаю! Что делать?",next:"n2",good:false,fb:"Спокойно. Но не ведитесь на «срочность» — сейчас проверим, как мошенник начнёт давить."},
+        {t:"Кладу трубку и звоню в банк сам на номер 900.",next:"win1",good:true,fb:"Идеально! Это главное правило: положить трубку и перезвонить самому по официальному номеру. Разговор с мошенником на этом заканчивается."},
+        {t:"Ой, как страшно! Рассказывайте подробнее.",next:"n2",good:false,fb:"Мошенник расценивает интерес как готовность слушать — и продолжает давить."}],
+      },
+      n2:{scam:"Списание ещё не прошло — деньги зависли в банке. Мне нужно срочно вас переключить на специалиста Центробанка, чтобы заблокировать операцию. Не кладите трубку, у нас 5 минут!",next:"n3"},
+      n3:{choices:[
+        {t:"Пять минут? Давайте быстрее, что делать?",next:"n4",good:false,fb:"Спешка — главный инструмент мошенника. Настоящий банк никогда не решает вопросы «за 5 минут по телефону»."},
+        {t:"Подождите, я перезвоню в банк сама.",next:"win1",good:true,fb:"Верно! «Не кладите трубку» — классический приём, чтобы вы не проверили информацию. Вы вышли из-под контроля."},
+        {t:"А как мне убедиться, что вы из банка?",next:"n4b",good:false,fb:"Правильный инстинкт! Но мошенник на это заготовлен — сейчас покажет «документы»."}],
+      },
+      n4:{scam:"Специалист ЦБ продиктует номер «безопасного счёта». Вы переведёте туда деньги, а потом мы их вернём. Назовите номер карты и три цифры на обратной стороне — для идентификации.",next:"n5"},
+      n4b:{scam:"Сейчас я пришлю вам скриншот удостоверения и вам всё станет ясно. Видите? Это же я, старший специалист. Теперь доверяете? Тогда продолжим: назовите три цифры с обратной стороны карты.",next:"n5"},
+      n5:{choices:[
+        {t:"Диктую номер карты и три цифры.",next:"lose1",good:false,fb:"Это финальная ошибка: цифры с обратной стороны карты + код из СМС = доступ к вашим деньгам. Настоящий сотрудник банка НИКОГДА их не спрашивает."},
+        {t:"Код из СМС тоже назвать?",next:"lose1",good:false,fb:"Код из СМС — это ключ от счёта. Достаточно одного кода, чтобы деньги ушли. Никому и никогда."},
+        {t:"«Безопасных счетов» не бывает. Кладу трубку.",next:"win2",good:true,fb:"Абсолютно верно! «Безопасный счёт» — сказка для жертв. Вы распознали схему на финальном шаге."}],
+      },
+      win1:{end:{good:true,title:"Звонок провалился 💪",text:"Вы сделали главное: прекратили разговор и вернули контроль. Мошенник работает только с теми, кто продолжает слушать. Перезвоните в банк по номеру 900 (или на обороте карты) и спросите, была ли подозрительная операция — почти наверняка нет."}},
+      win2:{end:{good:true,title:"Разоблачение удалось 🕵️",text:"Вы прошли всю схему до конца и не отдали ни рубля. Запомните опознавательные признаки: спешка, «не кладите трубку», «безопасный счёт», просьба назвать код или цифры с карты. Расскажите об этом знакомым!"}},
+      lose1:{end:{good:false,title:"Мошенник добился своего 😔",text:"Не вините себя — против таких сценариев работает команда профессиональных психологов. В реальной жизни на этом этапе: положите трубку, немедленно позвоните в банк (900) и заблокируйте карту, затем — полиция (102). Действуйте быстро, платёж ещё можно остановить."}}
+    }
+  },
+  police:{
+    title:"«Следователь полиции»",
+    caller:"+7 (495) 694-••-••  «Полиция»",
+    nodes:{
+      start:{scam:"Мария Петровна, здравствуйте. Капитан Морозов, Следственный комитет. На вас зарегистрирована сим-карта, с которой совершаются мошеннические переводы. Вы под следствием.",next:"n1"},
+      n1:{choices:[
+        {t:"Я?! Я ничего не делала, что происходит?!",next:"n2",good:false,fb:"Естественная реакция — но страх отключает критическое мышление. Именно этого и добиваются."},
+        {t:"Полиция не проводит следствие по телефону. Кладу трубку.",next:"win1",good:true,fb:"Отлично! Реальная полиция никогда не звонит с «проверкой ваших счетов» и не ведёт следствие по телефону."},
+        {t:"Покажите постановление, потом поговорим.",next:"n2b",good:false,fb:"Требование законно, но мошенники подделывают документы. Не тратьте время — кладите трубку."}],
+      },
+      n2:{scam:"Понимаю ваше волнение. Есть вариант: если ваши сбережения чистые — вы оправданы. Мы с сотрудником ЦБ проверим ваши счета. Возьмите все карты и не кладите трубку. И главное — это следственная тайна, никому не говорите, иначе обвинение.",next:"n3"},
+      n2b:{scam:"Постановление я продиктую, записывайте номер… Видите? Официальный документ. Теперь сотрудничайте: возьмите карты, мы проведём «проверку средств». И учтите — это следственная тайна, о звонке молчите.",next:"n3"},
+      n3:{choices:[
+        {t:"Плохо себя чувствую… но молчу, раз это тайна.",next:"n4",good:false,fb:"Просьба молчать — ключевой признак: мошенники отрезают вас от тех, кто скажет «это обман». Именно поэтому они это делают."},
+        {t:"Секунду, я скажу дочери, она юрист.",next:"win1",good:true,fb:"Прекрасно! Одна фраза родственнику мгновенно ломает всю схему. Именно поэтому «следователь» запретил вам говорить."},
+        {t:"Хорошо, беру карты. Что дальше?",next:"n4",good:false,fb:"Вы на крючке. Смотрите, к чему это ведёт."}],
+      },
+      n4:{scam:"Теперь переведите средства на счёт Центробанка — «на проверку». После проверки вернём с процентами. Если откажетесь — оформим арест, придут за вами сегодня вечером. С сотрудником ЦБ соединяю.",next:"n5"},
+      n5:{choices:[
+        {t:"Вечером?! Ладно, перевожу…",next:"lose1",good:false,fb:"Угроза «ареста вечером» — блеф и запугивание. Реальные повестки вручают письменно. Перевод «на проверку в ЦБ» = деньги мошеннику. ЦБ не принимает переводы от граждан."},
+        {t:"ЦБ не принимает переводы от людей. Я кладу трубку и звоню 102.",next:"win2",good:true,fb:"Великолепно! Вы знаете главный факт: Центробанк не работает с гражданами по телефону и не имеет «счетов для проверки». Угрозы арестом по телефону — уголовно наказуемый блеф."},
+        {t:"А можно мне перезвонить в полицию?",next:"win2",good:true,fb:"Да! Перезвоните 102 и спросите, есть ли «капитан Морозов» и дело против вас. Ответ будет: нет. Схема рассыпается."}],
+      },
+      win1:{end:{good:true,title:"Вы сорвали атаку 💪",text:"Главное оружие этой схемы — изоляция жертвы («никому не говорите») и страх. Вы вышли на связь с близкими, и «следствие» закончилось. Запомните: настоящие повестки — только письменные, вручаются лично, а не по телефону."}},
+      win2:{end:{good:true,title:"Мошенник повержен 🕵️",text:"Вы распознали все приёмы: ложный авторитет («Следственный комитет»), изоляция («следственная тайна»), страх («арест вечером») и финальную сказку («перевод в ЦБ на проверку»). Поделитесь этим сценарием с друзьями — чем больше людей знают, тем меньше жертв."}},
+      lose1:{end:{good:false,title:"Перевод ушёл мошенникам 😔",text:"Не вините себя: по этой схеме обманывают даже врачей и юристов. Что делать сейчас: 1) звоните в банк 900 — просите остановить платёж; 2) 102 — заявление в полицию; 3) скажите близким — они помогут, никто вас не осудит."}}
+    }
+  },
+  tech:{
+    title:"«Техподдержка» и «Госуслуги»",
+    caller:"Неизвестный номер 8 (800) •••-••-••",
+    nodes:{
+      start:{scam:"Добрый день! Служба поддержки «Госуслуг». У вас истекает запись к врачу, и чтобы её сохранить, подтвердите, пожалуйста, код из СМС, который вам сейчас придёт.",next:"n1"},
+      n1:{choices:[
+        {t:"Продиктую, конечно, мне к врачу надо.",next:"lose1",good:false,fb:"Стоп! Код из СМС — это вход в вашу учётную запись Госуслуг. С ней мошенник оформит кредит на ваше имя."},
+        {t:"Госуслуги не звонят с просьбой назвать код. До свидания.",next:"win1",good:true,fb:"Верно! Госуслуги не просят коды по телефону. Сброс — правильное действие."},
+        {t:"Подождите, а откуда у вас мой номер?",next:"n2",good:false,fb:"Номер утекает из баз — это обычное дело для мошенников. Сейчас покажу следующую легенду."}],
+      },
+      n2:{scam:"Хорошо, без кода. Другая ситуация: с вашего компьютера рассылается вирус, мы видим угрозу. С вами сейчас соединю инженера, он удалённо всё починит. Скачайте программу по ссылке, которую я пришлю.",next:"n3"},
+      n3:{choices:[
+        {t:"Скачаю, у меня и правда ноутбук тормозит!",next:"lose2",good:false,fb:"Программа «удалённого доступа» откроет мошеннику ваш экран, файлы и онлайн-банк. Дальше — полный контроль."},
+        {t:"Я ничего не буду скачивать. Перезвоню в поддержку Госуслуг сам.",next:"win2",good:true,fb:"Идеально! Никогда не скачивайте программы по просьбе звонившего. Официальная поддержка сама всё может, без ваших скачиваний."},
+        {t:"А какая у вас фамилия, инженера как зовут?",next:"n4",good:false,fb:"Имена они придумывают за секунду. Проверка по имени не работает — работает только сброс звонка."}],
+      },
+      n4:{scam:"Инженер Ковалёв Дмитрий Сергеевич, вот его «удостоверение» в СМС. Видите? Теперь не сомневайтесь: установите программу, иначе ваш банк будет взломан через час.",next:"n5"},
+      n5:{choices:[
+        {t:"Через час?! Ставлю программу!",next:"lose2",good:false,fb:"Опять спешка + страх. «Удостоверение» в СМС рисуется за минуту. Установив программу, вы отдаёте мошеннику весь компьютер."},
+        {t:"Приду в МФЦ и спрошу лично. Кладу трубку.",next:"win2",good:true,fb:"Прекрасный вариант! Офлайн-проверка — самый надёжный способ. Мошенник не может «прийти» в МФЦ."},
+        {t:"Позвоню внуку, он в этом разбирается.",next:"win2",good:true,fb:"Отлично! Молодой родственник за 30 секунд распознает эту схему. Так и должно работать: спросить того, кто знает."}],
+      },
+      win1:{end:{good:true,title:"Чистая победа 💪",text:"Код из СМС — это цифровая подпись. С ней злоумышленник входит в Госуслуги и может оформить кредит. Правило простое: код не диктуется никому и никогда, даже «поддержке»."}},
+      win2:{end:{good:true,title:"Схема разоблачена 🕵️",text:"Вы прошли оба слоя атаки: «подтвердите код» и «установите программу». Запомните формулу: никаких кодов, никаких скачиваний по просьбе звонившего, проверка — только офлайн или перезвоном на официальный номер."}},
+      lose1:{end:{good:false,title:"Учётная запись украдена 😔",text:"С кодом мошенник вошёл в ваши Госуслуги. Срочно: 1) смените пароль на gosuslugi.ru; 2) позвоните 115 и сообщите о взломе; 3) проверьте, не оформлены ли на вас кредиты (Госуслуги → «Кредитная история»). Сообщите в полицию — 102."}},
+      lose2:{end:{good:false,title:"Компьютер захвачен 😔",text:"Через удалённый доступ мошенник видит всё, включая онлайн-банк. Срочно: 1) отключите интернет; 2) выключите компьютер; 3) позвоните внуку/знакомому или в службу поддержки производителя; 4) из другого устройства смените пароли банка и почты; 5) звоните в банк 900."}}
+    }
+  }
+};
+
+let cur=null, nodeKey=null, stepsTotal=5, stepsDone=0;
+
+function startScn(key){
+  cur=SCENARIOS[key]; nodeKey='start'; stepsDone=0;
+  document.getElementById('sim-menu').style.display='none';
+  document.getElementById('sim-game').style.display='block';
+  document.getElementById('sim-caller').textContent=cur.caller;
+  document.getElementById('sim-chat').innerHTML='';
+  renderNode();
+}
+function addMsg(cls,text){
+  const chat=document.getElementById('sim-chat');
+  const d=document.createElement('div'); d.className='msg '+cls; d.textContent=text;
+  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
+}
+function prog(){ stepsDone=Math.min(stepsDone+1,stepsTotal); document.getElementById('sim-prog').style.width=(stepsDone/stepsTotal*100)+'%'; }
+function m_isEnd(n){ return !!n.end; }
+function m_scam(n){ return n.scam; }
+function m_next(n){ return n.next; }
+function m_setNext(scn,key){ nodeKey=key; }
+function renderNode(){
+  let n=cur.nodes[nodeKey];
+  const ch=document.getElementById('sim-choices'); ch.innerHTML='';
+  if(n.end){
+    prog(); addMsg('sys', n.end.title);
+    const fb=document.createElement('div'); fb.className='feedback '+(n.end.good?'ok':'bad'); fb.textContent=n.end.text;
+    document.getElementById('sim-chat').appendChild(fb);
+    const b=document.createElement('button'); b.className='big-btn blue'; b.textContent='↺ Пройти ещё раз'; b.onclick=()=>startScn(Object.keys(SCENARIOS).find(k=>SCENARIOS[k]===cur));
+    ch.appendChild(b);
+    return;
+  }
+  // проматываем узлы-реплики без выбора ответа
+  while(!n.choices && !m_isEnd(n)){
+    if(m_scam(n)) addMsg('scam', m_scam(n));
+    prog();
+    m_setNext(cur, m_next(n));
+    n=cur.nodes[nodeKey];
+  }
+  if(n.end){
+    prog(); addMsg('sys', n.end.title);
+    const fb=document.createElement('div'); fb.className='feedback '+(n.end.good?'ok':'bad'); fb.textContent=n.end.text;
+    document.getElementById('sim-chat').appendChild(fb);
+    const b=document.createElement('button'); b.className='big-btn blue'; b.textContent='↺ Пройти ещё раз'; b.onclick=()=>startScn(Object.keys(SCENARIOS).find(k=>SCENARIOS[k]===cur));
+    ch.appendChild(b);
+    return;
+  }
+  if(n.scam){ addMsg('scam',n.scam); }
+  prog();
+  (n.choices||[]).forEach(c=>{
+    const b=document.createElement('button');
+    b.textContent=c.t;
+    b.onclick=()=>{
+      addMsg('me',c.t);
+      const fb=document.createElement('div'); fb.className='feedback '+(c.good?'ok':'bad'); fb.textContent=(c.good?'✔ ':'✖ ')+c.fb;
+      document.getElementById('sim-chat').appendChild(fb);
+      document.getElementById('sim-chat').scrollTop=1e6;
+      setTimeout(()=>{ nodeKey=c.next; renderNode(); },700);
+      ch.innerHTML='';
+    };
+    document.getElementById('sim-choices').appendChild(b);
+  });
+}
+document.querySelectorAll('[data-scn]').forEach(b=>b.addEventListener('click',()=>{ goPage('sim'); startScn(b.dataset.scn); }));
+document.getElementById('sim-restart').addEventListener('click',()=>{ if(cur) startScn(Object.keys(SCENARIOS).find(k=>SCENARIOS[k]===cur)); });
+document.getElementById('sim-exit').addEventListener('click',()=>{ document.getElementById('sim-menu').style.display='block'; document.getElementById('sim-game').style.display='none'; });
+
+/* ============ Квиз ============ */
+const QUIZ=[
+ {q:"Звонят «из банка» и просят назвать код из СМС. Что делать?",o:["Назвать — это же мой банк","Не называть и положить трубку","Назвать, но попросить взамен пароль"],a:1,e:"Код из СМС — ключ от счёта. Его не имеет права спрашивать даже настоящий сотрудник банка."},
+ {q:"Существует ли «безопасный счёт», на который банк просит перевести деньги?",o:["Да, это официальный сервис ЦБ","Да, но только в рабочее время","Нет, это выдумка мошенников"],a:2,e:"«Безопасный счёт» — сказка для жертв. Банк никогда не «спасает» деньги переводом."},
+ {q:"Как проверить звонок «из банка»?",o:["Перезвонить по номеру 900 или на карте","Спросить ФИО звонившего","Проверить номер в интернете, не кладя трубку"],a:0,e:"Только перезвонок на официальный номер. Имена мошенники придумывают, а номер могут подделать."},
+ {q:"«Следователь» говорит: держите звонок в секрете, это следственная тайна. Почему?",o:["Так требует закон","Чтобы вы не рассказали близким, которые распознают обман","Чтобы не мешать расследованию"],a:1,e:"Изоляция жертвы — главный приём. Мошеннику нужно, чтобы никто не сказал вам правду."},
+ {q:"Пожилому человеку звонит «внук»: «я попал в беду, срочно пришли деньги». Что делать?",o:["Срочно переводить, вдруг правда","Задать контрольный вопрос и перезвонить внуку на его номер","Записать номер, с которого звонили, и перевести половину"],a:1,e:"Кодовое слово или простой личный вопрос («как зовут нашу кошку?») мгновенно вскрывает обман."},
+ {q:"«Инженер техподдержки» просит установить программу для удалённого доступа. Ваше действие?",o:["Установить — он же специалист","Отказаться и закончить разговор","Установить, но следить за экраном"],a:1,e:"Программа удалённого доступа отдаёт мошеннику весь компьютер, включая онлайн-банк."},
+ {q:"Вы уже перевели деньги мошеннику. Первое действие?",o:["Скрыть происшествие от родных","Немедленно позвонить в банк 900 и в полицию 102","Ждать — банк сам всё заметит"],a:1,e:"Скорость решает: банк может остановить платёж, пока он не исполнен. Стыдиться нечего — жертвами становятся миллионы."},
+ {q:"Кто чаще других становится жертвой крупных хищений (свыше 1 млн руб.)?",o:["Студенты","Люди пенсионного возраста","Предприниматели"],a:1,e:"По данным Банка России (2025), пенсионеры — лидеры по крупнейшим потерям: у них накопления и выше доверие к «официальным» звонкам."},
+ {q:"С какой фразы НИКОГДА не начнёт настоящий сотрудник банка?",o:["«Ваша карта заблокирована, срочно переведите деньги»","«Ваш платёж отклонён, проверьте в приложении»","«Мы уточним удобное время визита в офис»"],a:0,e:"Блокировку не снимают переводом. Любая фраза «срочно переведите» = мошенник."},
+ {q:"Лучший способ научить пожилого родственника не поддаваться?",o:["Читать ему нотации каждый день","Один раз пройти вместе интерактивный тренажёр звонков","Отобрать у него телефон"],a:1,e:"Навык формируется практикой: одна «репетиция» разговора с мошенником работает лучше десяти предупреждений (по данным исследования, 74% россиян говорят с близкими о мошенниках, но лишь 14% применяют средства защиты)."}
+];
+let qi=0, qScore=0;
+function renderQuiz(){
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-box').style.display='block';
+  if(qi>=QUIZ.length){ showQuizResult(); return; }
+  const q=QUIZ[qi];
+  document.getElementById('quiz-counter').textContent='Вопрос '+(qi+1)+' из '+QUIZ.length;
+  document.getElementById('quiz-q').textContent=q.q;
+  const box=document.getElementById('quiz-opts'); box.innerHTML='';
+  q.o.forEach((opt,i)=>{
+    const b=document.createElement('button'); b.textContent=opt;
+    b.onclick=()=>{
+      [...box.children].forEach((bb,j)=>{ bb.disabled=true; if(j===q.a)bb.classList.add('right'); });
+      if(i===q.a){qScore++;} else b.classList.add('wrong');
+      const fb=document.createElement('div'); fb.className='feedback '+(i===q.a?'ok':'bad');
+      fb.textContent=(i===q.a?'✔ Верно! ':'✖ Правильный ответ: «'+q.o[q.a]+'». ')+q.e;
+      box.appendChild(fb);
+      const nx=document.createElement('button'); nx.className='big-btn blue'; nx.textContent=qi===QUIZ.length-1?'Показать результат':'Следующий вопрос →';
+      nx.onclick=()=>{qi++; renderQuiz();}; box.appendChild(nx);
+    };
+    box.appendChild(b);
+  });
+}
+function showQuizResult(){
+  document.getElementById('quiz-box').style.display='none';
+  const r=document.getElementById('quiz-result'); r.style.display='block';
+  document.getElementById('quiz-score').textContent=qScore+' / '+QUIZ.length;
+  const v = qScore>=9?'Блестящий уровень бдительности! Вы легко распознаете мошенников — передайте навык близким.'
+    : qScore>=7?'Хороший результат! Перечитайте памятку и пройдите тренажёр — и будет 10/10.'
+    : qScore>=5?'Середина пути. Мошенники рассчитывают именно на такую уверенность. Пройдите все 3 сценария тренажёра.'
+    : 'Опасная зона! Пройдите все три сценария тренажёра и прочитайте памятку — это займёт 10 минут.';
+  document.getElementById('quiz-verdict').textContent=v;
+}
+document.getElementById('quiz-again').addEventListener('click',()=>{qi=0;qScore=0;renderQuiz();});
+renderQuiz();
+</script>
+</body>
+</html>
